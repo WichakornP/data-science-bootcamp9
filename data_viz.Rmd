@@ -1,0 +1,156 @@
+---
+title: "Data Visualization Using mtcars dataset"
+author: "Wichakorn Phuwasriwattananont"
+date: "2024-03-02"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Create 5 charts by using 'mpg' dataset
+
+## Call library
+```{r}
+library(tidyverse)
+library(ggthemes)
+library(patchwork)
+library(scales)
+```
+
+## Prepare data
+```{r}
+# extrat gear types to new column 
+
+mpg <- mpg %>% 
+  mutate(gear = if_else(grepl("^auto", trans), "Auto", "Manual"))
+```
+
+## Prepare setting of title and axis's labels
+```{r}
+title_setting <- theme(axis.title = element_text(face="bold"),
+                       plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+## Q1: Correlation between Highway Miles per Gallon and City Miles per Gallon
+```{r}
+p1 <- ggplot(data = mpg,
+       aes(x = cty, y = hwy)) + 
+  geom_point(alpha = 0.2, color = "purple", size = 4) +
+  geom_smooth(alpha = 0.3, color = "red", fill = "orange") +
+  theme_minimal() +
+  labs(title = "Highway Miles per Gallon vs City Miles per Gallon",
+       y = "Highway Miles per Gallon",
+       x = "City Miles per Gallon") + 
+  title_setting
+```
+```{r, echo = FALSE}
+print(p1)
+```
+
+
+
+## Q2: Highway Miles per Gallon for each Vehicle Classification 
+
+```{r}
+p2 <- ggplot(data = mpg,
+       aes(x = hwy, y = reorder(class, hwy),
+           fill = class)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Vehicle Classification vs Highway Miles per Gallon ",
+       y = "Vehicle Classification",
+       x = "City Miles per Gallon") +
+  title_setting
+```
+```{r, echo = FALSE}
+print(p2)
+```
+
+## Q3: Proprotion of gears in each manufacturer
+
+```{r}
+p3 <- ggplot(mpg, aes(y = manufacturer, fill = gear)) +
+  geom_bar(position = "fill") +
+  theme_minimal() +
+  labs(title = "Manufacturer and Gear Types",
+       x = "Proprotion") +
+  title_setting
+```
+```{r, echo = FALSE}
+print(p3)
+```
+## Q4: Proprotion of gears in whole manufacturer
+
+```{r}
+
+gear_n <- mpg %>% 
+  select(gear) %>% 
+  count(gear)
+
+p4 <- ggplot(gear_n, aes(y = gear, x = n, fill = n)) +
+  geom_col()  +
+  theme_minimal() 
+```
+```{r, echo = FALSE}
+print(p4)
+```
+## Q5: Difference of each vehicle classification in 9 years
+
+```{r}
+p5 <- ggplot(mpg, aes( y = class, x = as.character(year), col = class)) + 
+  scale_size_area(max_size = 10) +
+  geom_count() + 
+  theme_minimal() 
+```
+```{r, echo = FALSE}
+print(p5)
+```
+
+## Q6: Types of drive train of each manufacturer
+
+```{r}
+p6 <- ggplot(mpg,
+       aes(y = manufacturer , fill = drv))+
+  geom_bar(position = "fill")+
+  theme_minimal()+
+  scale_fill_brewer(palette = "Set2")+
+  labs(
+    title = "count-manufacturer-drv",
+    caption = "mpg_table"
+  )
+```
+```{r, echo = FALSE}
+print(p6)
+```
+
+## Q7: Types of drive train and vehicle classification of each manufacturer
+
+```{r}
+p7 <- ggplot(mpg,
+       aes(trans, manufacturer, col = class))+
+  geom_count()+
+  scale_size_area(max_size = 8) +
+  theme_minimal()+
+  labs(
+    title = "Types of drive train and vehicle classification of each manufacturer")
+```
+```{r, echo = FALSE}
+print(p7)
+```
+
+## Q8: Types of drive train and vehicle classification of each manufacturer
+
+```{r}
+p8 <- mpg %>% 
+  select(class, hwy) %>% 
+  group_by(class) %>% 
+  summarise(average_hwy = mean(hwy)) %>% 
+  ggplot(aes(x = average_hwy, y = reorder(class,average_hwy), fill = class)) +
+  geom_col() +
+  theme_minimal()
+```
+```{r, echo = FALSE}
+print(p8)
+```
+
+
